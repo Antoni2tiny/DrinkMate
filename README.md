@@ -75,6 +75,23 @@ npm run ios       # Abre iOS (macOS)
 npm run web       # Abre Web
 ```
 
+### Capturas (placeholders)
+- Home (landing): `docs/screens/home.png`
+- Mapa: `docs/screens/map.png`
+- Favoritos: `docs/screens/favorites.png`
+- Subir trago: `docs/screens/upload.png`
+
+Puedes crear la carpeta `docs/screens/` y colocar tus imágenes con esos nombres para que se muestren en el repo.
+
+### Roadmap
+- Autenticación completa con Firebase (registro, login, reset password)
+- Integración Firestore: recetas, favoritos, tragos subidos por usuario
+- Búsqueda por nombre/ingrediente con filtros de categorías
+- Mapa: lugares cercanos con filtros (bar/licorería), ratings y detalles
+- Compartir recetas y lugares (WhatsApp/Redes)
+- Notificaciones según clima con recomendaciones
+- Mejora UI/UX: tema oscuro, animaciones, estados vacíos
+
 ### Licencia
 MIT
 
