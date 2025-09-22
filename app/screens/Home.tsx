@@ -10,7 +10,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
       <ImageBackground
-        source={require('../../assets/hero-bg.jpg')}
+        source={require('../../assets/hero-bg .jpg')}
         style={styles.hero}
         imageStyle={styles.heroImage}
       >
