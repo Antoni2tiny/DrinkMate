@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ImageBackground, ScrollView, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../utils';
@@ -10,7 +11,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
       <ImageBackground
-        source={require('../../assets/hero-bg .jpg')}
+        source={require('../../assets/hero-bg.jpg')}
         style={styles.hero}
         imageStyle={styles.heroImage}
       >
@@ -21,17 +22,6 @@ export default function HomeScreen() {
           <View style={styles.ctaRow}>
             <Pressable style={[styles.cta, styles.ctaPrimary]} onPress={() => navigation.navigate('Login')}>
               <Text style={styles.ctaPrimaryText}>Empezar / Login</Text>
-            </Pressable>
-            <Pressable style={[styles.cta, styles.ctaGhost]} onPress={() => navigation.navigate('Mapa')}>
-              <Text style={styles.ctaGhostText}>Ver mapa</Text>
-            </Pressable>
-          </View>
-          <View style={styles.ctaRow}>
-            <Pressable style={[styles.cta, styles.ctaGhost]} onPress={() => navigation.navigate('Favoritos')}>
-              <Text style={styles.ctaGhostText}>Favoritos</Text>
-            </Pressable>
-            <Pressable style={[styles.cta, styles.ctaGhost]} onPress={() => navigation.navigate('Subir')}>
-              <Text style={styles.ctaGhostText}>Subí tu trago</Text>
             </Pressable>
           </View>
         </View>
@@ -44,6 +34,80 @@ export default function HomeScreen() {
           <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Mapa</Text><Text style={[styles.featureText, { color: colors.muted }]}>Bares y licorerías cerca tuyo.</Text></View>
           <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Favoritos</Text><Text style={[styles.featureText, { color: colors.muted }]}>Guarda bebidas y lugares.</Text></View>
           <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Crea</Text><Text style={[styles.featureText, { color: colors.muted }]}>Sube tus tragos con foto.</Text></View>
+          <View style={[styles.featureCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.featureTitle, { color: colors.primary }]}>Trivia</Text>
+            <Text style={[styles.featureText, { color: colors.muted }]}>Juego de preguntas con categorías para poner a prueba tus conocimientos y sumar puntaje.</Text>
+          </View>
+          <View style={[styles.featureCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.featureTitle, { color: colors.primary }]}>Sugerencias por clima</Text>
+            <Text style={[styles.featureText, { color: colors.muted }]}>Te recomendaremos tragos ideales según el clima del día. Próximamente.</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Accesos rápidos</Text>
+        <View style={styles.quickGrid}>
+          <Pressable
+            onPress={() => navigation.navigate('Recetas')}
+            style={({ pressed }) => [
+              styles.quickButton,
+              pressed && styles.quickButtonPressed,
+            ]}
+          >
+            <Ionicons name="wine" size={24} color={colors.primary} />
+            <Text style={styles.quickText}>Recetas</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('Mapa')}
+            style={({ pressed }) => [
+              styles.quickButton,
+              pressed && styles.quickButtonPressed,
+            ]}
+          >
+            <Ionicons name="map" size={24} color={colors.primary} />
+            <Text style={styles.quickText}>Ver mapa</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('Favoritos')}
+            style={({ pressed }) => [
+              styles.quickButton,
+              pressed && styles.quickButtonPressed,
+            ]}
+          >
+            <Ionicons name="heart" size={24} color={colors.primary} />
+            <Text style={styles.quickText}>Favoritos</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('Subir')}
+            style={({ pressed }) => [
+              styles.quickButton,
+              pressed && styles.quickButtonPressed,
+            ]}
+          >
+            <Ionicons name="add-circle" size={24} color={colors.primary} />
+            <Text style={styles.quickText}>Subí tu trago</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('Trivia')}
+            style={({ pressed }) => [
+              styles.quickButton,
+              pressed && styles.quickButtonPressed,
+            ]}
+          >
+            <Ionicons name="game-controller" size={24} color={colors.primary} />
+            <Text style={styles.quickText}>Trivia</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('Clima')}
+            style={({ pressed }) => [
+              styles.quickButton,
+              pressed && styles.quickButtonPressed,
+            ]}
+          >
+            <Ionicons name="partly-sunny" size={24} color={colors.primary} />
+            <Text style={styles.quickText}>Clima</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -103,6 +167,29 @@ const styles = StyleSheet.create({
   logo: { width: 90, height: 44, resizeMode: 'contain' },
 
   footerCta: { paddingHorizontal: 16, paddingBottom: 10 },
+
+  // Quick access grid
+  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10 },
+  quickButton: {
+    flexBasis: '48%',
+    backgroundColor: 'rgba(255,255,255,0.98)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#EEF2FF',
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    // shadow (iOS)
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 10,
+    // elevation (Android)
+    elevation: 2,
+  },
+  quickButtonPressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
+  quickText: { color: colors.primary, fontWeight: '700' },
 });
 
 
