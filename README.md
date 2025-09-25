@@ -3,17 +3,27 @@
 Aplicación Expo React Native para amantes de los tragos: recetas, bares/licorerías cercanas en mapa, favoritos y subida de tragos propios.
 
 ### Requisitos
-- Node 18+ (recomendado LTS)
+- Node LTS (recomendado 20.x). Evitar Node 22 por incompatibilidades con algunas herramientas
 - npm 9+ o yarn
-- Expo CLI (se instala al ejecutar los scripts)
+- Expo CLI (se usa vía `npx expo ...`)
 - Android Studio (para emulador) o dispositivo físico con Expo Go
+- iOS requiere macOS con Xcode
 
 ### Instalación
 ```bash
 npm install
 ```
 
+Primera vez o tras actualizar Expo SDK:
+```bash
+npx expo install --check     # sugiere versiones compatibles
+```
+
 ### Ejecutar el proyecto
+- Iniciar bundler (todas las plataformas):
+```bash
+npm run start
+```
 - Android (emulador o dispositivo conectado):
 ```bash
 npm run android
@@ -29,12 +39,36 @@ npm run web
 
 Si Metro está usando un puerto ocupado, Expo preguntará por uno alternativo. Acepta con "yes".
 
+En Windows PowerShell es conveniente usar `npx expo start -c` para limpiar caché si ves pantalla en blanco.
+
 ### Estructura principal
 - `App.tsx`: navegación (stack + bottom tabs)
-- `app/screens/`: pantallas Home, Mapa, Favoritos, UploadDrink, RecipeDetail
-- `app/auth/Login.tsx`: formulario básico de login (placeholder)
-- `utils/`: colores, tamaños y `initFirebase.ts`
-- `assets/`: imágenes (coloca aquí `hero-bg.jpg` si usas la imagen del hero)
+- `index.ts`: registro de la app (Expo)
+- `app/screens/`:
+  - `Home.tsx` (landing, hero y accesos rápidos)
+  - `Recipes.tsx` (lista básica de recetas)
+  - `RecipeDetail.tsx`
+  - `Map.tsx`
+  - `Favorites.tsx`
+  - `UploadDrink.tsx`
+  - `Trivia.tsx` (juego con categorías y niveles)
+  - `WeatherSuggestions.tsx` (sugerencias por clima – en construcción)
+- `app/auth/Login.tsx`
+- `utils/`: `colors.ts`, `sizes.ts`, `initFirebase.ts`, `index.ts`
+- `assets/`: imágenes (ej. `hero-bg.jpg`, `home-bg.jpg`, `trivia.png`)
+
+### Dependencias principales
+- Expo SDK 53 (`expo ~53.x`)
+- React 19, React Native 0.79 (alineadas con Expo 53)
+- React Navigation (`@react-navigation/native`, `@react-navigation/native-stack`, `@react-navigation/bottom-tabs`)
+- `react-native-safe-area-context`, `react-native-screens`
+- Mapa: `react-native-maps`
+- Expo APIs: `expo-status-bar`, `expo-location`, `expo-image-picker`, `expo-sharing`
+
+Para asegurar versiones compatibles con tu SDK, usa:
+```bash
+npx expo install <paquete>
+```
 
 ### Configurar Firebase (opcional, para auth y Firestore)
 1. Crea un proyecto en Firebase Console y habilita Authentication (Email/Password) y Firestore si lo usarás.
@@ -51,10 +85,13 @@ const config = {
 ```
 
 ### Funcionalidades actuales
-- Home como landing con hero y CTAs (Login, Mapa, Favoritos, Subir)
-- Tabs inferiores con iconos: Inicio, Mapa, Favoritos, Subir
-- Mapa: geolocalización básica (solicita permiso) y marcador de ubicación actual
-- UploadDrink: formulario básico con selector de imagen (galería)
+- Home como landing con hero y CTA de Login
+- Accesos rápidos: Recetas, Mapa, Favoritos, Subir, Trivia, Clima
+- Sección "¿Qué ofrece DrinkGo?" con descripciones de módulos, incluyendo Trivia y Clima
+- Trivia: preguntas por categorías, niveles, puntaje, finalizar/reiniciar
+- Recetas: listado base y detalle placeholder
+- Mapa: geolocalización básica (solicita permiso)
+- UploadDrink: formulario simple con selección de imagen
 
 ### Agregar imágenes de marca (opcional)
 - Hero: `assets/hero-bg.jpg` (coloca tu imagen)
@@ -63,9 +100,12 @@ const config = {
 - Paleta en `utils/colors.ts` (`primary`, `accent`, `background`, `surface`, `text`, `muted`)
 
 ### Solución de problemas
-- Abre primero en Home pero ves Login: cierra la app del emulador, corre `npx expo start -c` y vuelve a iniciar. Si persiste, desinstala la app del emulador.
-- Error de versiones con Expo: ejecuta `npx expo install --check` y sigue las recomendaciones.
-- Permisos de ubicación no concedidos: habilita permisos en el emulador (Settings → Location) o en el dispositivo.
+- Pantalla en blanco/solo splash: `npx expo start -c` (limpia caché) y reinstala la app del emulador si persiste.
+- Puerto 8081 ocupado: Expo propondrá otro puerto. Acepta.
+- “Cannot find module 'expo'”: usa `npx expo start` (no `npx run expo`).
+- Desfase de versiones: `npx expo install --check` y aplica sugerencias.
+- Node incompatible: usa Node 20 LTS (`nvm use 20` si usas nvm) y reinstala `node_modules`.
+- Permisos de ubicación no concedidos: habilítalos en el emulador (Settings → Location) o en el dispositivo.
 
 ### Scripts útiles
 ```bash
