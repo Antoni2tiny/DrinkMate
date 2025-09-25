@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Login from "./app/auth/Login";
 import HomeScreen from "./app/screens/Home";
 import MapScreen from "./app/screens/Map";
-import FavoritesScreen from "./app/screens/Favorites";
+import FavoritesScreen from "./app/screens/favorites/Favorites";
 import UploadDrinkScreen from "./app/screens/UploadDrink";
 import RecipeDetailScreen from "./app/screens/RecipeDetail";
 
