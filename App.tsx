@@ -27,7 +27,7 @@ function MainTabs() {
           let iconName: keyof typeof Ionicons.glyphMap = 'home-outline';
           if (route.name === 'Inicio') iconName = focused ? 'home' : 'home-outline';
           if (route.name === 'Recetas') iconName = focused ? 'wine' : 'wine-outline';
-          
+          if (route.name === 'Clima') iconName = focused ? 'partly-sunny' : 'partly-sunny-outline';
           if (route.name === 'Trivia') iconName = focused ? 'game-controller' : 'game-controller-outline';
           if (route.name === 'Mapa') iconName = focused ? 'map' : 'map-outline';
           if (route.name === 'Favoritos') iconName = focused ? 'heart' : 'heart-outline';
@@ -37,12 +37,12 @@ function MainTabs() {
       })}
     >
       <Tabs.Screen name="Inicio" component={HomeScreen} />
+      <Tabs.Screen name="Recetas" component={RecipesScreen} />
       
-      
-      
-      
-      
-      
+      <Tabs.Screen name="Trivia" component={TriviaScreen} />
+      <Tabs.Screen name="Mapa" component={MapScreen} />
+      <Tabs.Screen name="Favoritos" component={FavoritesScreen} />
+      <Tabs.Screen name="Subir" component={UploadDrinkScreen} />
     </Tabs.Navigator>
   );
 }
