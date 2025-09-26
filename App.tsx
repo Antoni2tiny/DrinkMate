@@ -9,7 +9,7 @@ import TriviaScreen from "./app/screens/Trivia";
 import RecipesScreen from "./app/screens/Recipes";
 
 import MapScreen from "./app/screens/Map";
-import FavoritesScreen from "./app/screens/Favorites";
+import FavoritesScreen from "./app/screens/favorites/Favorites";
 import UploadDrinkScreen from "./app/screens/UploadDrink";
 import RecipeDetailScreen from "./app/screens/RecipeDetail";
 

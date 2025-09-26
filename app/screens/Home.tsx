@@ -329,5 +329,3 @@ const styles = StyleSheet.create({
   quickText: { color: colors.primary, fontWeight: '700' },
   hidden: { display: 'none' },
 });
-
-
