@@ -130,10 +130,10 @@ export default function HomeScreen() {
           <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Mapa</Text><Text style={[styles.featureText, { color: colors.muted }]}>Bares y licorerías cerca tuyo.</Text></View>
           <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Favoritos</Text><Text style={[styles.featureText, { color: colors.muted }]}>Guarda bebidas y lugares.</Text></View>
           <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Crea</Text><Text style={[styles.featureText, { color: colors.muted }]}>Sube tus tragos con foto.</Text></View>
-          <View style={[styles.featureCard, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.featureTitle, { color: colors.primary }]}>Trivia</Text>
-            <Text style={[styles.featureText, { color: colors.muted }]}>Juego de preguntas con categorías para poner a prueba tus conocimientos y sumar puntaje.</Text>
-          </View>
+           { /*<View style={[styles.featureCard, { backgroundColor: colors.surface }]}>
+           <Text style={[styles.featureTitle, { color: colors.primary }]}>Trivia</Text>
+             <Text style={[styles.featureText, { color: colors.muted }]}>Juego de preguntas con categorías para poner a prueba tus conocimientos y sumar puntaje.</Text>
+          </View>*/}
         </View>
       </View>
 
@@ -217,13 +217,13 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-        <Pressable style={[styles.cta, styles.ctaOutline]} onPress={handleOpenCatalog}>
+        {/*<Pressable style={[styles.cta, styles.ctaOutline]} onPress={handleOpenCatalog}>
           <Text style={styles.ctaOutlineText}>Ver más en TheCocktailDB</Text>
-        </Pressable>
+        </Pressable>*/}
       </View>
 
       <View style={styles.sectionCard}>
-        <Text style={styles.sectionTitle}>Confían en nosotros</Text>
+       {/* <Text style={styles.sectionTitle}>Confían en nosotros</Text>*/}
         <View style={styles.references}>
           <View style={styles.badge}><Text style={styles.badgeText}>🍸 MixClub</Text></View>
           <View style={styles.badge}><Text style={styles.badgeText}>🏙️ CityBars</Text></View>
