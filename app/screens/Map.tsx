@@ -7,8 +7,9 @@ import * as Location from 'expo-location';
 
 export default function MapScreen() {
   const navigation = useNavigation<any>();
-  const [region, setRegion] = useState<{ latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } | null>(null);
+  const [region, setRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [bars, setBars] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -17,19 +18,49 @@ export default function MapScreen() {
         setErrorMsg('Permiso de ubicación denegado');
         return;
       }
+
       const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
       setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude,
+        longitude,
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       });
+
+      // Consulta a Overpass API para obtener bares cercanos
+      const query = `
+        [out:json];
+        node
+          [amenity=bar]
+          (around:1500, ${latitude}, ${longitude});
+        out;
+      `;
+
+      try {
+        const response = await fetch('https://overpass-api.de/api/interpreter', {
+          method: 'POST',
+          body: query,
+        });
+        const data = await response.json();
+
+        const parsedBars = data.elements.map((bar: any) => ({
+          name: bar.tags?.name || 'Bar sin nombre',
+          latitude: bar.lat,
+          longitude: bar.lon,
+        }));
+
+        setBars(parsedBars);
+      } catch (error) {
+        setErrorMsg('Error al consultar bares cercanos');
+      }
     })();
   }, []);
 
   if (!region) {
     return (
-      <SafeAreaView style={styles.center}> 
+      <SafeAreaView style={styles.center}>
         {errorMsg ? <Text>{errorMsg}</Text> : <ActivityIndicator />}
       </SafeAreaView>
     );
@@ -39,6 +70,14 @@ export default function MapScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <MapView style={styles.map} region={region}>
         <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} title="Estás aquí" />
+        {bars.map((bar, index) => (
+          <Marker
+            key={index}
+            coordinate={{ latitude: bar.latitude, longitude: bar.longitude }}
+            title={bar.name}
+            pinColor="purple"
+          />
+        ))}
       </MapView>
       <Pressable style={styles.homeBtn} onPress={() => navigation.navigate('Inicio')}>
         <Text style={styles.homeBtnText}>Volver a inicio</Text>
@@ -53,5 +92,3 @@ const styles = StyleSheet.create({
   homeBtn: { position: 'absolute', bottom: 24, left: 16, right: 16, backgroundColor: '#111', paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
   homeBtnText: { color: '#fff', fontWeight: '700' },
 });
-
-
