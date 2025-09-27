@@ -12,7 +12,7 @@ import MapScreen from "./app/screens/Map";
 import FavoritesScreen from "./app/screens/Favorites";
 import UploadDrinkScreen from "./app/screens/UploadDrink";
 import RecipeDetailScreen from "./app/screens/RecipeDetail";
-
+import Register from './app/auth/Register';
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
 
@@ -55,6 +55,7 @@ export default function App() {
           <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
           <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
           <Stack.Screen name="DetalleReceta" component={RecipeDetailScreen} options={{ title: 'Receta' }} />
+          <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
