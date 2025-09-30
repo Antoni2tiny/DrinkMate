@@ -1,94 +1,77 @@
-import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import axios from 'axios';
 
-export default function MapScreen() {
-  const navigation = useNavigation<any>();
-  const [region, setRegion] = useState(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [bars, setBars] = useState<any[]>([]);
+export default function Map() {
+  const [location, setLocation] = useState(null);
+  const [bares, setBares] = useState([]);
 
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permiso de ubicación denegado');
-        return;
-      }
+      if (status !== 'granted') return;
 
-      const location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = location.coords;
-
-      setRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      });
-
-      // Consulta a Overpass API para obtener bares cercanos
-      const query = `
-        [out:json];
-        node
-          [amenity=bar]
-          (around:1500, ${latitude}, ${longitude});
-        out;
-      `;
-
-      try {
-        const response = await fetch('https://overpass-api.de/api/interpreter', {
-          method: 'POST',
-          body: query,
-        });
-        const data = await response.json();
-
-        const parsedBars = data.elements.map((bar: any) => ({
-          name: bar.tags?.name || 'Bar sin nombre',
-          latitude: bar.lat,
-          longitude: bar.lon,
-        }));
-
-        setBars(parsedBars);
-      } catch (error) {
-        setErrorMsg('Error al consultar bares cercanos');
-      }
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc.coords);
+      buscarBares(loc.coords.latitude, loc.coords.longitude);
     })();
   }, []);
 
-  if (!region) {
-    return (
-      <SafeAreaView style={styles.center}>
-        {errorMsg ? <Text>{errorMsg}</Text> : <ActivityIndicator />}
-      </SafeAreaView>
-    );
-  }
+  const buscarBares = async (lat: number, lng: number) => {
+    const query = `
+      [out:json][timeout:25];
+      (
+        node(around:1000,${lat},${lng})[amenity=bar];
+        way(around:1000,${lat},${lng})[amenity=bar];
+        relation(around:1000,${lat},${lng})[amenity=bar];
+      );
+      out center;
+    `;
+    try {
+      const response = await axios.get('https://overpass-api.de/api/interpreter', {
+        params: { data: query },
+      });
+      const resultados = response.data.elements.map((bar: any) => ({
+        id: bar.id,
+        name: bar.tags?.name || 'Bar sin nombre',
+        lat: bar.lat || bar.center?.lat,
+        lng: bar.lon || bar.center?.lon,
+      })).filter(bar => bar.lat && bar.lng);
+      setBares(resultados);
+    } catch (error) {
+      console.error('Error al buscar bares con Overpass:', error);
+    }
+  };
+
+  if (!location) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <MapView style={styles.map} region={region}>
-        <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} title="Estás aquí" />
-        {bars.map((bar, index) => (
+    <View style={styles.container}>
+      <MapView
+        style={styles.map}
+        region={{
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }}
+        showsUserLocation={true}
+      >
+        {bares.map((bar) => (
           <Marker
-            key={index}
-            coordinate={{ latitude: bar.latitude, longitude: bar.longitude }}
+            key={bar.id}
+            coordinate={{ latitude: bar.lat, longitude: bar.lng }}
             title={bar.name}
-            pinColor="purple"
           />
         ))}
       </MapView>
-      <Pressable style={styles.homeBtn} onPress={() => navigation.navigate('Inicio')}>
-        <Text style={styles.homeBtnText}>Volver a inicio</Text>
-      </Pressable>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
   map: { flex: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  homeBtn: { position: 'absolute', bottom: 24, left: 16, right: 16, backgroundColor: '#111', paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
-  homeBtnText: { color: '#fff', fontWeight: '700' },
 });
