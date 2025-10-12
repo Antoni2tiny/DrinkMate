@@ -25,6 +25,7 @@ export default function Login(){
     })
     const handleLogin= (values: IFormvalues) =>{ 
         console.log(values);
+        navigation.navigate('Main')
     }
 
 
@@ -154,5 +155,5 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
   },
     
-    
+
 })
