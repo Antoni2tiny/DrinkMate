@@ -12,7 +12,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 export default function Register() {
 
 
-  const navigation = useNavigation(); 
+const navigation = useNavigation(); 
 interface IFormvalues{
     nombre: string
     apellido: string
@@ -29,7 +29,7 @@ const FormValidationSchema =Yup.object().shape({
 
 const handleRegister = (values: IFormvalues) => {
     console.log(values);
-    
+    navigation.navigate('Login')
     }
 
 
