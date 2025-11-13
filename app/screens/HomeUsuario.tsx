@@ -16,7 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, sizes } from '../../utils';
 import { sendTestNotification, registerForPushNotificationsAsync } from '../../utils/notifications';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { FirestoreCuponService, FirestoreEmpresaService } from '../../utils/firebaseServices';
 import { Cupon } from '../../utils/models';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
@@ -39,7 +42,38 @@ interface Props {
 }
 
 export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth }: Props) {
-  const navigation = useNavigation();
+  type RootStackParamList = {
+    Home: undefined;
+    AuthOptions: undefined;
+    WelcomeHome: undefined;
+    Login: undefined;
+    Register: undefined;
+    UserTypeSelection: undefined;
+    GuestTabs: undefined;
+    UserTabs: undefined;
+    EmpresaTabs: undefined;
+    Main: undefined;
+    DetalleReceta: undefined;
+    AuthManager: undefined;
+    EmpresaAuthManager: undefined;
+    RegistroEmpresa: undefined;
+  };
+
+  type BottomTabParamList = {
+    Inicio: undefined;
+    Empresa: undefined;
+    Home: undefined;
+    Mapa: undefined;
+    Favoritos: undefined;
+    Subir: undefined;
+  };
+
+  type HomeUsuarioNavProp = CompositeNavigationProp<
+    BottomTabNavigationProp<BottomTabParamList, 'Inicio'>,
+    NativeStackNavigationProp<RootStackParamList>
+  >;
+
+  const navigation = useNavigation<HomeUsuarioNavProp>();
   const { userType, currentUser, isAuthenticated } = useAppAuth();
   const [recentDrinks, setRecentDrinks] = useState<DrinkItem[]>([]);
   const [pushToken, setPushToken] = useState<string | null>(null);
@@ -76,6 +110,9 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
       
       // Método simplificado: obtener todos los cupones directamente
       try {
+        if (!db) {
+          throw new Error('Firestore no disponible');
+        }
         const q = query(collection(db, 'cupones'));
         const querySnapshot = await getDocs(q);
         const todosCupones: Cupon[] = [];
@@ -176,7 +213,8 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
   /**
    * Navega a diferentes pantallas
    */
-  const navigateToScreen = (screenName: string) => {
+  type ScreenName = keyof RootStackParamList | keyof BottomTabParamList;
+  const navigateToScreen = (screenName: ScreenName) => {
     try {
       if (screenName === 'RegistroEmpresa') {
         // Usar el callback para mostrar el gestor de empresas
@@ -246,14 +284,6 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
             >
               <Ionicons name="heart" size={32} color={colors.primary} />
               <Text style={styles.actionText}>Favoritos</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => navigateToScreen('RegistroEmpresa')}
-            >
-              <Ionicons name="business" size={32} color={colors.success} />
-              <Text style={styles.actionText}>Registrar Empresa</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -451,6 +481,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.darkSurface,
     borderRadius: sizes.borderRadius.medium,
     paddingVertical: sizes.padding.large,
+  },
+  featuresList: {
+    gap: sizes.margin.small,
   },
   actionButton: {
     alignItems: 'center',

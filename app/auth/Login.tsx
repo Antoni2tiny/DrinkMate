@@ -39,9 +39,7 @@ interface LoginProps {
 
 export default function Login({ route }: LoginProps) {
     const [showPass, setShowPass] = useState<boolean>(true);
-    const [userType, setUserType] = useState<'usuario' | 'empresa'>(
-        route?.params?.userType || 'usuario'
-    );
+    const userType: 'usuario' = 'usuario';
 
     const navigation = useNavigation<LoginNavigationProp>();
 
@@ -62,12 +60,8 @@ export default function Login({ route }: LoginProps) {
             // Aquí iría la lógica de autenticación real
             // Por ahora simulamos un login exitoso
 
-            // Navegar según el tipo de usuario seleccionado
-            if (userType === 'usuario') {
-                navigation.navigate('UserTabs');
-            } else {
-                navigation.navigate('EmpresaTabs');
-            }
+            // Navegar como usuario
+            navigation.navigate('UserTabs');
         } catch (error) {
             console.error('Error en login:', error);
             Alert.alert('Error', 'No se pudo iniciar sesión. Inténtalo de nuevo.');
@@ -110,52 +104,6 @@ export default function Login({ route }: LoginProps) {
                 keyboardShouldPersistTaps="handled"
                 bounces={true}
             >
-                {/* Selector de tipo de usuario */}
-                <View style={styles.userTypeSelector}>
-                    <Text style={styles.selectorTitle}>Selecciona tu tipo de cuenta:</Text>
-                    <View style={styles.selectorButtons}>
-                        <TouchableOpacity
-                            style={[
-                                styles.selectorButton,
-                                userType === 'usuario' && styles.selectorButtonActive
-                            ]}
-                            onPress={() => setUserType('usuario')}
-                        >
-                            <Ionicons
-                                name="person"
-                                size={20}
-                                color={userType === 'usuario' ? colors.background : colors.primary}
-                            />
-                            <Text style={[
-                                styles.selectorButtonText,
-                                userType === 'usuario' && styles.selectorButtonTextActive
-                            ]}>
-                                Usuario
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.selectorButton,
-                                userType === 'empresa' && styles.selectorButtonActive
-                            ]}
-                            onPress={() => setUserType('empresa')}
-                        >
-                            <Ionicons
-                                name="business"
-                                size={20}
-                                color={userType === 'empresa' ? colors.background : colors.primary}
-                            />
-                            <Text style={[
-                                styles.selectorButtonText,
-                                userType === 'empresa' && styles.selectorButtonTextActive
-                            ]}>
-                                Empresa
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
                 {/* Formulario de login */}
                 <Formik
                     initialValues={{ email: '', password: '' }}
@@ -225,9 +173,7 @@ export default function Login({ route }: LoginProps) {
                                 onPress={() => handleSubmit()}
                                 disabled={!isValid}
                             >
-                                <Text style={styles.loginButtonText}>
-                                    Iniciar Sesión como {userType === 'usuario' ? 'Usuario' : 'Empresa'}
-                                </Text>
+                                <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.registerLink} onPress={goToRegister}>

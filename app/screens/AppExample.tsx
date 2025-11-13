@@ -29,7 +29,11 @@ export default function AppExample() {
   if (showAuthType === 'empresa') {
     return (
       <EmpresaAuthManager
-        onAuthSuccess={() => setShowAuthType(null)}
+        onAuthSuccess={(user, empresa) => {
+          console.log('✅ Usuario autenticado:', user);
+          console.log('🏢 Empresa autenticada:', empresa);
+          setShowAuthType(null);
+        }}
         onCancel={() => setShowAuthType(null)}
       />
     );

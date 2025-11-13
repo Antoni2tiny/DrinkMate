@@ -19,6 +19,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { colors, sizes } from '../../utils';
 import { FirebaseEmpresaAuthService } from '../../utils/firebaseEmpresaAuth';
+import { useNavigation } from '@react-navigation/native';
 
 interface LoginFormData {
   email: string;
@@ -44,6 +45,7 @@ interface Props {
 export default function EmpresaLogin({ onLoginSuccess, onNavigateToRegister, onCancel }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation<any>();
 
   /**
    * Manejar el login de empresa
@@ -57,16 +59,31 @@ export default function EmpresaLogin({ onLoginSuccess, onNavigateToRegister, onC
 
       if (result.success && result.user && result.empresa) {
         console.log('✅ Login empresa exitoso:', result.empresa.nombre);
+        
+        // Primero llamamos al callback de éxito
+        if (typeof onLoginSuccess === 'function') {
+          onLoginSuccess(result.user, result.empresa);
+        }
+        
+        // Luego mostramos la alerta de bienvenida
         Alert.alert(
           'Bienvenido',
           `¡Hola ${result.empresa.nombre}! Acceso al panel de empresa concedido.`,
-          [
-            {
-              text: 'OK',
-              onPress: () => onLoginSuccess(result.user, result.empresa),
-            },
-          ]
+          [{ text: 'OK' }]
         );
+
+        // Navegar al panel de empresa
+        try {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'EmpresaTabs' }],
+          });
+        } catch (navErr) {
+          console.log('Navegación no disponible, intentando navigate simple:', navErr);
+          // Fallback a navigate si reset no está disponible
+          // @ts-ignore
+          navigation.navigate && navigation.navigate('EmpresaTabs');
+        }
       } else {
         Alert.alert('Error de Login', result.error || 'No se pudo iniciar sesión');
       }
@@ -183,7 +200,7 @@ export default function EmpresaLogin({ onLoginSuccess, onNavigateToRegister, onC
                     styles.loginButton,
                     (!isValid || isLoading) && styles.loginButtonDisabled
                   ]}
-                  onPress={handleSubmit}
+                  onPress={() => handleSubmit()}
                   disabled={!isValid || isLoading}
                 >
                   <Ionicons 
@@ -196,13 +213,7 @@ export default function EmpresaLogin({ onLoginSuccess, onNavigateToRegister, onC
                   </Text>
                 </TouchableOpacity>
 
-                {/* Enlace a registro */}
-                <View style={styles.registerSection}>
-                  <Text style={styles.registerText}>¿Tu empresa no está registrada?</Text>
-                  <TouchableOpacity onPress={onNavigateToRegister}>
-                    <Text style={styles.registerLink}>Registrar empresa</Text>
-                  </TouchableOpacity>
-                </View>
+                {/* Enlace a registro eliminado */}
 
                 {/* Información adicional */}
                 <View style={styles.infoSection}>

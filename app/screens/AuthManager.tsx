@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -13,23 +14,31 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, sizes } from '../../utils';
 import Login from './Login';
 import Registro from './Registro';
+import { useNavigation } from '@react-navigation/native';
 
 type AuthMode = 'welcome' | 'login' | 'register';
 
 interface Props {
-  onAuthSuccess: (user: any) => void;
-  onCancel: () => void;
+  onAuthSuccess?: (user: any) => void;
+  onCancel?: () => void;
 }
 
 export default function AuthManager({ onAuthSuccess, onCancel }: Props) {
-  const [mode, setMode] = useState<AuthMode>('welcome');
+  const [mode, setMode] = useState<AuthMode>('login');
+  const navigation = useNavigation<any>();
 
   if (mode === 'login') {
     return (
       <Login
         onLoginSuccess={onAuthSuccess}
         onNavigateToRegister={() => setMode('register')}
-        onCancel={() => setMode('welcome')}
+        onCancel={() => {
+          if (typeof onCancel === 'function') {
+            onCancel();
+          } else {
+            navigation.goBack();
+          }
+        }}
       />
     );
   }
@@ -37,9 +46,15 @@ export default function AuthManager({ onAuthSuccess, onCancel }: Props) {
   if (mode === 'register') {
     return (
       <Registro
-        onRegistroSuccess={onAuthSuccess}
+        onRegistroSuccess={(user) => onAuthSuccess?.(user)}
         onNavigateToLogin={() => setMode('login')}
-        onCancel={() => setMode('welcome')}
+        onCancel={() => {
+          if (typeof onCancel === 'function') {
+            onCancel();
+          } else {
+            navigation.goBack();
+          }
+        }}
       />
     );
   }
@@ -49,7 +64,16 @@ export default function AuthManager({ onAuthSuccess, onCancel }: Props) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onCancel}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            if (typeof onCancel === 'function') {
+              onCancel();
+            } else {
+              navigation.goBack();
+            }
+          }}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>DrinkMate</Text>
@@ -57,68 +81,83 @@ export default function AuthManager({ onAuthSuccess, onCancel }: Props) {
       </View>
 
       {/* Contenido principal */}
-      <View style={styles.content}>
-        {/* Logo/Icono principal */}
-        <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
-            <Ionicons name="wine" size={80} color={colors.primary} />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          {/* Logo/Icono principal */}
+          <View style={styles.logoSection}>
+            <View style={styles.logoContainer}>
+              <Ionicons name="wine" size={80} color={colors.primary} />
+            </View>
+            <Text style={styles.appTitle}>DrinkMate</Text>
+            <Text style={styles.appSubtitle}>
+              Descubre los mejores bares, obtén cupones exclusivos y disfruta de promociones únicas
+            </Text>
           </View>
-          <Text style={styles.appTitle}>DrinkMate</Text>
-          <Text style={styles.appSubtitle}>
-            Descubre los mejores bares, obtén cupones exclusivos y disfruta de promociones únicas
-          </Text>
-        </View>
 
-        {/* Beneficios */}
-        <View style={styles.benefitsSection}>
-          <View style={styles.benefitItem}>
-            <Ionicons name="pricetag" size={24} color={colors.primary} />
-            <Text style={styles.benefitText}>Cupones y descuentos exclusivos</Text>
+          {/* Beneficios */}
+          <View style={styles.benefitsSection}>
+            <View style={styles.benefitItem}>
+              <Ionicons name="pricetag" size={24} color={colors.primary} />
+              <Text style={styles.benefitText}>Cupones y descuentos exclusivos</Text>
+            </View>
+            
+            <View style={styles.benefitItem}>
+              <Ionicons name="notifications" size={24} color={colors.primary} />
+              <Text style={styles.benefitText}>Notificaciones de promociones</Text>
+            </View>
+            
+            <View style={styles.benefitItem}>
+              <Ionicons name="heart" size={24} color={colors.primary} />
+              <Text style={styles.benefitText}>Guarda tus lugares favoritos</Text>
+            </View>
+            
+            <View style={styles.benefitItem}>
+              <Ionicons name="map" size={24} color={colors.primary} />
+              <Text style={styles.benefitText}>Encuentra bares cerca de ti</Text>
+            </View>
           </View>
-          
-          <View style={styles.benefitItem}>
-            <Ionicons name="notifications" size={24} color={colors.primary} />
-            <Text style={styles.benefitText}>Notificaciones de promociones</Text>
+
+          {/* Botones de acción */}
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={styles.registerButton}
+              onPress={() => setMode('register')}
+            >
+              <Ionicons name="person-add" size={20} color={colors.background} />
+              <Text style={styles.registerButtonText}>Crear Cuenta</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => setMode('login')}
+            >
+              <Ionicons name="log-in" size={20} color={colors.primary} />
+              <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+            </TouchableOpacity>
           </View>
-          
-          <View style={styles.benefitItem}>
-            <Ionicons name="heart" size={24} color={colors.primary} />
-            <Text style={styles.benefitText}>Guarda tus lugares favoritos</Text>
-          </View>
-          
-          <View style={styles.benefitItem}>
-            <Ionicons name="map" size={24} color={colors.primary} />
-            <Text style={styles.benefitText}>Encuentra bares cerca de ti</Text>
+
+          {/* Opción de continuar sin cuenta */}
+          <View style={styles.guestSection}>
+            <Text style={styles.guestText}>¿Solo quieres echar un vistazo?</Text>
+            <TouchableOpacity
+              onPress={() => {
+                if (typeof onCancel === 'function') {
+                  onCancel();
+                } else {
+                  navigation.goBack();
+                }
+              }}
+            >
+              <Text style={styles.guestLink}>Continuar sin cuenta</Text>
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Botones de acción */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.registerButton}
-            onPress={() => setMode('register')}
-          >
-            <Ionicons name="person-add" size={20} color={colors.background} />
-            <Text style={styles.registerButtonText}>Crear Cuenta</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => setMode('login')}
-          >
-            <Ionicons name="log-in" size={20} color={colors.primary} />
-            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Opción de continuar sin cuenta */}
-        <View style={styles.guestSection}>
-          <Text style={styles.guestText}>¿Solo quieres echar un vistazo?</Text>
-          <TouchableOpacity onPress={onCancel}>
-            <Text style={styles.guestLink}>Continuar sin cuenta</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -246,5 +285,11 @@ const styles = StyleSheet.create({
     fontSize: sizes.medium,
     fontWeight: 'bold',
     color: colors.primary,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: sizes.padding.xlarge,
   },
 });

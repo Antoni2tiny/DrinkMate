@@ -25,6 +25,7 @@ import CuponCreator from '../components/CuponCreator';
 import { NotificationService } from '../../utils/notificationService';
 import { FirestoreCuponService } from '../../utils/firebaseServices';
 import { useEmpresaAuth } from '../context/EmpresaAuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 interface NotificationForm {
   title: string;
@@ -51,6 +52,7 @@ export default function EmpresaPanel() {
   const [cupones, setCupones] = useState<Cupon[]>([]);
   const [loadingCupones, setLoadingCupones] = useState(true);
   const empresaId = empresa?.id || '1'; // ID de la empresa actual
+  const navigation = useNavigation<any>();
 
   /**
    * Cargar cupones desde Firebase al iniciar
@@ -65,20 +67,20 @@ export default function EmpresaPanel() {
   const loadCuponesFromFirebase = async () => {
     try {
       setLoadingCupones(true);
-      console.log('🔄 Cargando cupones desde Firebase...');
+      console.log(' Cargando cupones desde Firebase...');
       
       const firebaseCupones = await FirestoreCuponService.getCuponesByEmpresa(empresaId);
       
       if (firebaseCupones.length > 0) {
-        console.log(`✅ ${firebaseCupones.length} cupones cargados desde Firebase`);
+        console.log(` ${firebaseCupones.length} cupones cargados desde Firebase`);
         setCupones(firebaseCupones);
       } else {
-        console.log('📝 No hay cupones en Firebase, usando datos de ejemplo');
+        console.log(' No hay cupones en Firebase, usando datos de ejemplo');
         // Si no hay cupones en Firebase, usar los de ejemplo como fallback
         setCupones(cuponesEjemplo);
       }
     } catch (error) {
-      console.error('❌ Error cargando cupones desde Firebase:', error);
+      console.error(' Error cargando cupones desde Firebase:', error);
       // En caso de error, usar cupones de ejemplo
       setCupones(cuponesEjemplo);
     } finally {
@@ -167,7 +169,7 @@ export default function EmpresaPanel() {
    */
   const handleCuponCreated = async (nuevoCupon: Partial<Cupon>) => {
     try {
-      console.log('🎫 Creando nuevo cupón:', nuevoCupon.titulo);
+      console.log(' Creando nuevo cupón:', nuevoCupon.titulo);
       
       // Intentar guardar en Firebase primero
       const firebaseId = await FirestoreCuponService.createCupon({
@@ -187,15 +189,15 @@ export default function EmpresaPanel() {
       
       // Enviar notificación a usuarios
       await NotificationService.sendCuponNotification(
-        '🎫 ¡Nuevo cupón disponible!',
+        ' ¡Nuevo cupón disponible!',
         `${nuevoCupon.titulo} - ${nuevoCupon.descripcion}`,
         cuponCompleto.id,
         empresaId
       );
       
       const mensaje = firebaseId 
-        ? '✅ Cupón creado y guardado en Firebase. Los usuarios han sido notificados.'
-        : '⚠️ Cupón creado localmente (Firebase no disponible). Los usuarios han sido notificados.';
+        ? ' Cupón creado y guardado en Firebase. Los usuarios han sido notificados.'
+        : ' Cupón creado localmente (Firebase no disponible). Los usuarios han sido notificados.';
       
       Alert.alert('Éxito', mensaje);
       
@@ -205,7 +207,7 @@ export default function EmpresaPanel() {
       }
       
     } catch (error) {
-      console.error('❌ Error creando cupón:', error);
+      console.error(' Error creando cupón:', error);
       Alert.alert('Error', 'No se pudo crear el cupón. Inténtalo de nuevo.');
     }
   };
@@ -235,12 +237,12 @@ export default function EmpresaPanel() {
           )
         );
         
-        console.log(`✅ Cupón ${nuevoEstado ? 'activado' : 'desactivado'}: ${cupon.titulo}`);
+        console.log(` Cupón ${nuevoEstado ? 'activado' : 'desactivado'}: ${cupon.titulo}`);
         
         // Notificar a usuarios si se activa un cupón
         if (nuevoEstado) {
           await NotificationService.sendCuponNotification(
-            '🔄 Cupón reactivado',
+            ' Cupón reactivado',
             `${cupon.titulo} está disponible nuevamente`,
             cuponId,
             empresaId
@@ -250,7 +252,7 @@ export default function EmpresaPanel() {
         Alert.alert('Error', 'No se pudo actualizar el estado del cupón');
       }
     } catch (error) {
-      console.error('❌ Error cambiando estado del cupón:', error);
+      console.error(' Error cambiando estado del cupón:', error);
       Alert.alert('Error', 'No se pudo cambiar el estado del cupón');
     }
   };
@@ -273,12 +275,12 @@ export default function EmpresaPanel() {
               
               if (success) {
                 setCupones(prev => prev.filter(c => c.id !== cuponId));
-                console.log('✅ Cupón eliminado:', titulo);
+                console.log(' Cupón eliminado:', titulo);
               } else {
                 Alert.alert('Error', 'No se pudo eliminar el cupón');
               }
             } catch (error) {
-              console.error('❌ Error eliminando cupón:', error);
+              console.error(' Error eliminando cupón:', error);
               Alert.alert('Error', 'No se pudo eliminar el cupón');
             }
           }
@@ -385,27 +387,40 @@ export default function EmpresaPanel() {
               {isAuthenticated && ' • Autenticado'}
             </Text>
           </View>
-          {isAuthenticated && (
-            <TouchableOpacity 
-              style={styles.logoutButton}
-              onPress={() => {
-                Alert.alert(
-                  'Cerrar Sesión',
-                  '¿Estás seguro de que quieres cerrar sesión?',
-                  [
-                    { text: 'Cancelar', style: 'cancel' },
-                    { 
-                      text: 'Cerrar Sesión', 
-                      style: 'destructive',
-                      onPress: logoutEmpresa 
-                    },
-                  ]
-                );
-              }}
-            >
-              <Ionicons name="log-out" size={24} color={colors.error} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity 
+            style={styles.logoutButton}
+            onPress={() => {
+              Alert.alert(
+                'Cerrar Sesión',
+                '¿Estás seguro de que quieres cerrar sesión?',
+                [
+                  { text: 'Cancelar', style: 'cancel' },
+                  { 
+                    text: 'Cerrar Sesión', 
+                    style: 'destructive',
+                    onPress: async () => {
+                      try {
+                        await logoutEmpresa();
+                        try {
+                          navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Home' }],
+                          });
+                        } catch (navErr) {
+                          // @ts-ignore
+                          navigation.navigate && navigation.navigate('Home');
+                        }
+                      } catch (e) {
+                        // Silenciar errores aquí, ya se loguean en el contexto
+                      }
+                    } 
+                  },
+                ]
+              );
+            }}
+          >
+            <Ionicons name="log-out" size={24} color={colors.error} />
+          </TouchableOpacity>
         </View>
 
         {/* Pestañas de navegación */}
@@ -531,7 +546,7 @@ export default function EmpresaPanel() {
                       styles.sendButton,
                       (!isValid || isLoading) && styles.buttonDisabled
                     ]}
-                    onPress={handleSubmit}
+                    onPress={() => handleSubmit()}
                     disabled={!isValid || isLoading}
                   >
                     <Ionicons 

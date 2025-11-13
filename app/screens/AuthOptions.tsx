@@ -11,11 +11,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, sizes } from '../../utils';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Login: { userType: 'usuario' | 'empresa' };
+  Register: { userType: 'usuario' | 'empresa' };
+  GuestTabs: undefined;
+  // Add other screens and their params as needed
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width, height } = Dimensions.get('window');
 
 export default function AuthOptions() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
 
   /**
    * Navega al login con tipo de usuario específico

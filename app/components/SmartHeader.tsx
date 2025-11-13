@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   View,
   Text,
@@ -7,6 +8,8 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+
 import { useAppAuth } from '../hooks/useAppAuth';
 import { colors, sizes } from '../../utils';
 
@@ -27,6 +30,7 @@ export default function SmartHeader({
   onEmpresaAuthPress 
 }: Props) {
   const { userType, currentUser, logoutAll, isAuthenticated } = useAppAuth();
+  const navigation = useNavigation<any>();
 
   const handleLogout = () => {
     Alert.alert(
@@ -37,7 +41,18 @@ export default function SmartHeader({
         { 
           text: 'Cerrar Sesión', 
           style: 'destructive',
-          onPress: logoutAll 
+          onPress: async () => {
+            try {
+              await logoutAll();
+            } finally {
+              try {
+                navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+              } catch (e) {
+                // @ts-ignore
+                navigation.navigate && navigation.navigate('Home');
+              }
+            }
+          }
         },
       ]
     );

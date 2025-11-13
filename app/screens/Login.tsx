@@ -19,31 +19,23 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { colors, sizes } from '../../utils';
 import { FirebaseAuthService } from '../../utils/firebaseAuth';
+import { useNavigation } from '@react-navigation/native';
 
 interface LoginFormData {
   email: string;
   password: string;
 }
 
-// Esquema de validación
-const LoginSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Email inválido')
-    .required('El email es requerido'),
-  password: Yup.string()
-    .min(6, 'La contraseña debe tener al menos 6 caracteres')
-    .required('La contraseña es requerida'),
-});
-
 interface Props {
-  onLoginSuccess: (user: any) => void;
-  onNavigateToRegister: () => void;
-  onCancel: () => void;
+  onLoginSuccess?: (user: any) => void;
+  onNavigateToRegister?: () => void;
+  onCancel?: () => void;
 }
 
 export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation<any>();
 
   /**
    * Manejar el login
@@ -51,28 +43,37 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
   const handleLogin = async (values: LoginFormData) => {
     try {
       setIsLoading(true);
-      console.log('🔐 Iniciando sesión:', values.email);
+      console.log(' Iniciando sesión:', values.email);
 
       const result = await FirebaseAuthService.login(values.email, values.password);
 
       if (result.success && result.user) {
-        console.log('✅ Login exitoso:', result.user.email);
+        console.log(' Login exitoso:', result.user.email);
         Alert.alert(
           'Bienvenido',
           `¡Hola ${result.user.displayName || result.user.email}!`,
           [
             {
               text: 'OK',
-              onPress: () => onLoginSuccess(result.user),
+              onPress: () => {
+                if (typeof onLoginSuccess === 'function') {
+                  onLoginSuccess(result.user);
+                }
+                try {
+                  navigation.reset({ index: 0, routes: [{ name: 'UserTabs' }] });
+                } catch (navErr) {
+                  // @ts-ignore
+                  navigation.navigate && navigation.navigate('UserTabs');
+                }
+              },
             },
           ]
         );
       } else {
         Alert.alert('Error de Login', result.error || 'No se pudo iniciar sesión');
       }
-
     } catch (error) {
-      console.error('❌ Error en login:', error);
+      console.error(' Error en login:', error);
       Alert.alert('Error', 'Ocurrió un error inesperado. Inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
@@ -81,20 +82,29 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={onCancel}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              if (typeof onCancel === 'function') {
+                onCancel();
+              } else {
+                navigation.goBack();
+              }
+            }}
+          >
             <Ionicons name="arrow-back" size={24} color={colors.primary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Iniciar Sesión</Text>
           <View style={styles.placeholder} />
         </View>
 
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -114,12 +124,18 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
               email: '',
               password: '',
             }}
-            validationSchema={LoginSchema}
+            validationSchema={Yup.object().shape({
+              email: Yup.string()
+                .email('Email inválido')
+                .required('El email es requerido'),
+              password: Yup.string()
+                .min(6, 'La contraseña debe tener al menos 6 caracteres')
+                .required('La contraseña es requerida'),
+            })}
             onSubmit={handleLogin}
           >
             {({ values, handleChange, handleSubmit, errors, touched, isValid }) => (
               <View style={styles.formContainer}>
-                
                 {/* Email */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Email</Text>
@@ -128,7 +144,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
                     <TextInput
                       style={[
                         styles.input,
-                        touched.email && errors.email && styles.inputError
+                        touched.email && errors.email && styles.inputError,
                       ]}
                       placeholder="tu@email.com"
                       placeholderTextColor={colors.muted}
@@ -152,7 +168,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
                     <TextInput
                       style={[
                         styles.input,
-                        touched.password && errors.password && styles.inputError
+                        touched.password && errors.password && styles.inputError,
                       ]}
                       placeholder="Tu contraseña"
                       placeholderTextColor={colors.muted}
@@ -165,10 +181,10 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
                       style={styles.passwordToggle}
                       onPress={() => setShowPassword(!showPassword)}
                     >
-                      <Ionicons 
-                        name={showPassword ? "eye-off" : "eye"} 
-                        size={20} 
-                        color={colors.muted} 
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={20}
+                        color={colors.muted}
                       />
                     </TouchableOpacity>
                   </View>
@@ -181,15 +197,15 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
                 <TouchableOpacity
                   style={[
                     styles.loginButton,
-                    (!isValid || isLoading) && styles.loginButtonDisabled
+                    (!isValid || isLoading) && styles.loginButtonDisabled,
                   ]}
-                  onPress={handleSubmit}
+                  onPress={() => handleSubmit()}
                   disabled={!isValid || isLoading}
                 >
-                  <Ionicons 
-                    name={isLoading ? "hourglass" : "log-in"} 
-                    size={20} 
-                    color={colors.background} 
+                  <Ionicons
+                    name={isLoading ? "hourglass" : "log-in"}
+                    size={20}
+                    color={colors.background}
                   />
                   <Text style={styles.loginButtonText}>
                     {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
@@ -199,7 +215,20 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
                 {/* Enlace a registro */}
                 <View style={styles.registerSection}>
                   <Text style={styles.registerText}>¿No tienes cuenta?</Text>
-                  <TouchableOpacity onPress={onNavigateToRegister}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (typeof onNavigateToRegister === 'function') {
+                        onNavigateToRegister();
+                      } else {
+                        // navegación de fallback
+                        try {
+                          navigation.navigate('Register', { userType: 'usuario' });
+                        } catch (e) {
+                          // noop
+                        }
+                      }
+                    }}
+                  >
                     <Text style={styles.registerLink}>Regístrate aquí</Text>
                   </TouchableOpacity>
                 </View>
@@ -209,6 +238,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister, onCancel }
                   <View style={styles.infoCard}>
                     <Ionicons name="information-circle" size={20} color={colors.primary} />
                     <Text style={styles.infoText}>
+                      Tu cuenta te permite guardar favoritos, recibir notificaciones
                       Tu cuenta te permite guardar favoritos, recibir notificaciones 
                       personalizadas y acceder a promociones exclusivas.
                     </Text>

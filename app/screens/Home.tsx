@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, ImageBackground, ScrollView, Image, FlatList, ActivityIndicator, Alert, TextInput, Dimensions, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ImageBackground, ScrollView, Image, FlatList, ActivityIndicator, Alert, TextInput, Dimensions, Modal, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 import { Ionicons } from '@expo/vector-icons';
@@ -35,6 +35,19 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState<number>(10);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+
+  // Habilitar animaciones de layout en Android
+  useEffect(() => {
+    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }, []);
+
+  const toggleFeature = useCallback((key: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setActiveFeature((prev: string | null) => (prev === key ? null : key));
+  }, []);
 
   // Estados para búsqueda
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -283,6 +296,18 @@ export default function HomeScreen() {
     }
   ], []);
 
+  const featuresData = useMemo(
+    () => [
+      { key: 'Recetas', title: 'Recetas', desc: 'Encuentra cócteles por nombre o ingrediente.', icon: 'wine' },
+      { key: 'Mapa', title: 'Mapa', desc: 'Bares y licorerías cerca tuyo.', icon: 'map' },
+      { key: 'Favoritos', title: 'Favoritos', desc: 'Guarda bebidas y lugares.', icon: 'heart' },
+      { key: 'Sube tu trago', title: 'Sube tu trago', desc: 'Comparte tus propias recetas con la comunidad.', icon: 'add-circle' },
+      { key: 'Empresas', title: 'Empresas', desc: 'Descubre establecimientos aliados destacados cerca de ti.', icon: 'business' },
+      { key: 'Cupones', title: 'Cupones', desc: 'Aprovecha descuentos y promociones exclusivas.', icon: 'pricetag' },
+    ],
+    []
+  );
+
   useEffect(() => {
     const id = setInterval(() => {
       setCarouselIndex((prev) => {
@@ -363,10 +388,33 @@ export default function HomeScreen() {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>¿Qué ofrece DrinkGo?</Text>
           <View style={styles.features}>
-            <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Recetas</Text><Text style={[styles.featureText, { color: colors.muted }]}>Encuentra cócteles por nombre o ingrediente.</Text></View>
-            <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Mapa</Text><Text style={[styles.featureText, { color: colors.muted }]}>Bares y licorerías cerca tuyo.</Text></View>
-            <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Favoritos</Text><Text style={[styles.featureText, { color: colors.muted }]}>Guarda bebidas y lugares.</Text></View>
-            <View style={[styles.featureCard, { backgroundColor: colors.surface }]}><Text style={[styles.featureTitle, { color: colors.primary }]}>Trivia</Text><Text style={[styles.featureText, { color: colors.muted }]}>Juego de preguntas para poner a prueba tus conocimientos.</Text></View>
+            {featuresData.map((f) => (
+              <Pressable
+                key={f.key}
+                style={[
+                  styles.featureCard,
+                  activeFeature === f.key && styles.featureCardActive,
+                  { backgroundColor: colors.surface },
+                ]}
+                onPress={() => toggleFeature(f.key)}
+                onHoverIn={() => toggleFeature(f.key)}
+                onHoverOut={() => {
+                  if (activeFeature === f.key) toggleFeature(f.key);
+                }}
+              >
+                <Text
+                  numberOfLines={f.key === 'Sube tu trago' ? 2 : 1}
+                  adjustsFontSizeToFit
+                  style={[styles.featureTitle, { color: colors.primary }]}
+                >
+                  {f.title}
+                </Text>
+                <Ionicons name={f.icon as any} size={18} color={colors.primary} style={styles.featureIcon} />
+                {activeFeature === f.key && (
+                  <Text style={[styles.featureText, { color: colors.muted }]}>{f.desc}</Text>
+                )}
+              </Pressable>
+            ))}
           </View>
         </View>
 
@@ -537,22 +585,30 @@ export default function HomeScreen() {
             ))}
           </View>
 
-          {/* CTA mejorado para empresas */}
-          <View style={styles.businessCtaNew}>
-            <View style={styles.ctaIconContainer}>
-              <Ionicons name="add-circle" size={32} color={colors.primary} />
-            </View>
-            <View style={styles.ctaTextContainer}>
-              <Text style={styles.ctaTitle}>¿Eres propietario?</Text>
-              <Text style={styles.ctaDescription}>
-                Únete a nuestra red de establecimientos premium
-              </Text>
+          {/* Tarjeta ejecutiva para propietarios */}
+          <View style={[styles.featureCard, { backgroundColor: colors.primary, padding: 16, borderRadius: 12, marginVertical: 16 }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: 8, marginRight: 12 }}>
+                <Ionicons name="business" size={24} color="white" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>¿Eres propietario?</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 4 }}>
+                  Únete a nuestra red de establecimientos premium
+                </Text>
+              </View>
             </View>
             <Pressable
-              style={styles.ctaButton}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: 8,
+                paddingVertical: 10,
+                alignItems: 'center',
+                marginTop: 8
+              }}
               onPress={() => navigation.navigate('AuthOptions')}
             >
-              <Text style={styles.ctaButtonText}>Registrarse</Text>
+              <Text style={{ color: colors.primary, fontWeight: '600' }}>Registrarse</Text>
               <Ionicons name="chevron-forward" size={16} color={colors.background} />
             </Pressable>
           </View>
@@ -896,17 +952,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    minHeight: 100,
-    justifyContent: 'center',
+    minHeight: 120,
+    alignItems: 'flex-start',
+  },
+  featureCardActive: {
+    minHeight: 160,
+    borderColor: colors.primary,
   },
   featureTitle: {
     fontWeight: '700',
     marginBottom: 8,
-    fontSize: Math.min(16, width * 0.04),
+    fontSize: Math.min(17, width * 0.042),
+  },
+  featureTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    width: '100%',
+  },
+  featureIcon: {
+    marginRight: 4,
   },
   featureText: {
-    fontSize: Math.min(13, width * 0.032),
-    lineHeight: 18,
+    fontSize: Math.min(14, width * 0.036),
+    lineHeight: 20,
   },
 
   // Sección de empresas mejorada
@@ -936,15 +1005,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   companiesTitle: {
-    fontSize: Math.min(20, width * 0.05),
+    fontSize: Math.min(22, width * 0.055),
     fontWeight: 'bold',
     color: colors.primary,
     marginBottom: 4,
   },
   companiesSubtitle: {
-    fontSize: Math.min(14, width * 0.035),
+    fontSize: Math.min(16, width * 0.04),
     color: colors.muted,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   companiesContainer: {
     paddingHorizontal: 20,
@@ -1012,14 +1081,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   companyNameNew: {
-    fontSize: Math.min(14, width * 0.035),
+    fontSize: Math.min(15, width * 0.038),
     fontWeight: 'bold',
     color: colors.text,
     textAlign: 'center',
     marginBottom: 4,
   },
   companyTypeNew: {
-    fontSize: Math.min(11, width * 0.028),
+    fontSize: Math.min(12, width * 0.03),
     color: colors.muted,
     textAlign: 'center',
     marginBottom: 8,
