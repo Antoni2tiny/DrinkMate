@@ -16,6 +16,7 @@ type DrinkType = {
   strCategory?: string;
   strAlcoholic?: string;
   strInstructions?: string;
+  strInstructionsES?: string;
   strIngredient1?: string;
   strIngredient2?: string;
   strIngredient3?: string;
@@ -129,13 +130,17 @@ export default function HomeScreen() {
       message += `\n🧪 Ingredientes:\n${ingredients.map(ing => `• ${ing}`).join('\n')}\n`;
     }
 
-    if (item.strInstructions) {
+    if (item.strInstructionsES) {
+      message += `\n📝 Preparación:\n${item.strInstructionsES}`;
+    } else {
       message += `\n📝 Preparación:\n${item.strInstructions}`;
     }
 
     Alert.alert('Receta Completa', message, [
       { text: 'Cerrar', style: 'cancel' },
-      { text: 'Ver más', onPress: () => console.log('Navegar a detalle completo') }
+      { text: 'Ver más', onPress: () => {
+        navigation.navigate('DetalleReceta', { idDrink: item.idDrink });
+      } },
     ]);
   }, []);
 
