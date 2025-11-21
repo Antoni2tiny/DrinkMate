@@ -32,7 +32,6 @@ export const firebaseApp = (() => {
       persistence: getReactNativePersistence(AsyncStorage)
     });
     
-    console.log('✅ Firebase inicializado correctamente');
     return app;
   } catch (error) {
     console.error('❌ Error inicializando Firebase:', error);

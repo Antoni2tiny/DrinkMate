@@ -36,7 +36,6 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     // Escuchar cambios de autenticación
     const unsubscribe = FirebaseAuthService.onAuthStateChange(async (firebaseUser) => {
-      console.log('🔐 Estado de autenticación cambió:', firebaseUser?.email || 'No autenticado');
       
       setUser(firebaseUser);
       
@@ -44,7 +43,6 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         // Cargar perfil del usuario desde Firestore
         const profile = await FirestoreUserService.getUserProfile(firebaseUser.uid);
         setUserProfile(profile);
-        console.log('👤 Perfil de usuario cargado:', profile?.nombre || 'Sin perfil');
       } else {
         setUserProfile(null);
       }
@@ -52,7 +50,9 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
       setIsLoading(false);
     });
 
-    return unsubscribe || (() => {});
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -67,7 +67,6 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         return { success: false, error: result.error };
       }
     } catch (error) {
-      console.error('Error en login:', error);
       return { success: false, error: 'Error inesperado' };
     } finally {
       setIsLoading(false);
@@ -93,7 +92,6 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         return { success: false, error: result.error };
       }
     } catch (error) {
-      console.error('Error en registro:', error);
       return { success: false, error: 'Error inesperado' };
     } finally {
       setIsLoading(false);
@@ -106,7 +104,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
       await FirebaseAuthService.logout();
       // El listener se encargará de limpiar el estado
     } catch (error) {
-      console.error('Error en logout:', error);
+      // console.error('Error en logout:', error);
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +124,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
       
       return success;
     } catch (error) {
-      console.error('Error actualizando perfil:', error);
+      // console.error('Error actualizando perfil:', error);
       return false;
     }
   };

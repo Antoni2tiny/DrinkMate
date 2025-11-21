@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native'; // Importar Platform
+import Constants from 'expo-constants'; // Importar Constants
 
 /**
  * Inicializador de la aplicación
@@ -12,16 +13,36 @@ export class AppInitializer {
    */
   static async initializeNotifications(): Promise<void> {
     try {
-      // Configurar el manejador de notificaciones
+      // Configurar el manejador de notificaciones lo antes posible para todas las notificaciones
       Notifications.setNotificationHandler({
         handleNotification: async () => ({
           shouldShowAlert: true,
           shouldPlaySound: true,
           shouldSetBadge: true,
+          shouldShowBanner: true,
+          shouldShowList: true,
         }),
       });
 
-      // Solicitar permisos de notificación
+      // ***** Lógica para evitar el error de notificaciones push en Expo Go (Android SDK 53+) *****
+      if (Constants.appOwnership === 'expo' && Platform.OS === 'android') {
+        console.log('📱 [AVISO] Notificaciones push remotas no disponibles en Expo Go para Android (SDK 53+). Solo notificaciones locales.');
+        // Retornar inmediatamente para evitar cualquier llamada a funciones de push.
+        return;
+      }
+      // ***** Fin de la lógica específica para Expo Go (Android SDK 53+) *****
+
+      // Si llegamos aquí, procedemos con la configuración de notificaciones locales.
+
+      // La verificación de projectId ya no es necesaria si no registramos push tokens.
+      // const projectId = Constants.expoConfig?.extra?.eas?.projectId || Constants.expoConfig?.projectId;
+
+      // if (!projectId) {
+      //   console.log('⚠️ [ADVERTENCIA] No se encontró projectId en app.json. Las notificaciones push no serán registradas.');
+      //   return;
+      // }
+
+      // Solicitar permisos de notificación (para locales)
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       
@@ -35,14 +56,11 @@ export class AppInitializer {
         return;
       }
 
-      console.log('✅ Notificaciones locales configuradas correctamente');
+      console.log('✅ Notificaciones configuradas correctamente (push y/o locales)');
     } catch (error) {
-      // Silenciar errores de notificaciones en desarrollo
-      if (error.message && error.message.includes('projectId')) {
-        console.log('📱 Notificaciones push no disponibles en Expo Go (normal en desarrollo)');
-      } else {
-        console.log('📱 Notificaciones no disponibles:', error.message);
-      }
+      // Capturamos cualquier error inesperado, pero SOLO lo logeamos en la consola
+      // sin mostrar ninguna alerta al usuario.
+      console.warn('❌ Error silencioso al configurar notificaciones:', error);
     }
   }
 
@@ -70,6 +88,8 @@ export class AppInitializer {
    */
   static async initializeApp(): Promise<void> {
     console.log('🚀 Inicializando DrinkMate...');
+    console.log('Constants.appOwnership:', Constants.appOwnership);
+    console.log('Platform.OS:', Platform.OS);
     
     // Verificar Firebase
     this.checkFirebaseStatus();

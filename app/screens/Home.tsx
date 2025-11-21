@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../utils';
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Linking } from 'react-native';
+import { useAppAuth } from '../hooks/useAppAuth'; // Importar el hook de autenticación
 
 // Tipo para los tragos de la API
 type DrinkType = {
@@ -37,13 +38,14 @@ export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState<number>(10);
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  const { isAuthenticated } = useAppAuth(); // Obtener el estado de autenticación
 
   // Habilitar animaciones de layout en Android
   useEffect(() => {
     if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
       UIManager.setLayoutAnimationEnabledExperimental(true);
     }
-  }, []);
+  }, [isAuthenticated]); // Añadir isAuthenticated como dependencia
 
   const toggleFeature = useCallback((key: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -371,22 +373,26 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               )}
             </View>
-            <View style={styles.ctaRow}>
-              <Pressable style={[styles.cta, styles.ctaPrimary]} onPress={() => navigation.navigate('AuthManager')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="person" size={18} color="#fff" />
-                  <Text style={styles.ctaPrimaryText}>Soy Usuario</Text>
-                </View>
-              </Pressable>
-            </View>
+            {!isAuthenticated && (
+              <View style={styles.ctaRow}>
+                <Pressable style={[styles.cta, styles.ctaPrimary]} onPress={() => navigation.navigate('AuthManager')}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Ionicons name="person" size={18} color="#fff" />
+                    <Text style={styles.ctaPrimaryText}>Soy Usuario</Text>
+                  </View>
+                </Pressable>
+              </View>
+            )}
 
             {/* Enlace discreto para empresas */}
-            <View style={styles.empresaLinkContainer}>
-              <Text style={styles.empresaLinkText}>¿Eres una empresa? </Text>
-              <Pressable onPress={() => navigation.navigate('EmpresaAuthManager')}>
-                <Text style={styles.empresaLink}>Regístrate aquí</Text>
-              </Pressable>
-            </View>
+            {!isAuthenticated && (
+              <View style={styles.empresaLinkContainer}>
+                <Text style={styles.empresaLinkText}>¿Eres una empresa? </Text>
+                <Pressable onPress={() => navigation.navigate('EmpresaAuthManager')}>
+                  <Text style={styles.empresaLink}>Regístrate aquí</Text>
+                </Pressable>
+              </View>
+            )}
           </View>
         </ImageBackground>
 
@@ -591,32 +597,34 @@ export default function HomeScreen() {
           </View>
 
           {/* Tarjeta ejecutiva para propietarios */}
-          <View style={[styles.featureCard, { backgroundColor: colors.primary, padding: 16, borderRadius: 12, marginVertical: 16 }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-              <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: 8, marginRight: 12 }}>
-                <Ionicons name="business" size={24} color="white" />
+          {!isAuthenticated && (
+            <View style={[styles.featureCard, { backgroundColor: colors.primary, padding: 16, borderRadius: 12, marginVertical: 16 }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: 8, marginRight: 12 }}>
+                  <Ionicons name="business" size={24} color="white" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>¿Eres propietario?</Text>
+                  <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 4 }}>
+                    Únete a nuestra red de establecimientos premium
+                  </Text>
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>¿Eres propietario?</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 4 }}>
-                  Únete a nuestra red de establecimientos premium
-                </Text>
-              </View>
+              <Pressable
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: 8,
+                  paddingVertical: 10,
+                  alignItems: 'center',
+                  marginTop: 8
+                }}
+                onPress={() => navigation.navigate('AuthOptions')}
+              >
+                <Text style={{ color: colors.primary, fontWeight: '600' }}>Registrarse</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.background} />
+              </Pressable>
             </View>
-            <Pressable
-              style={{
-                backgroundColor: 'white',
-                borderRadius: 8,
-                paddingVertical: 10,
-                alignItems: 'center',
-                marginTop: 8
-              }}
-              onPress={() => navigation.navigate('AuthOptions')}
-            >
-              <Text style={{ color: colors.primary, fontWeight: '600' }}>Registrarse</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.background} />
-            </Pressable>
-          </View>
+          )}
         </View>
 
 

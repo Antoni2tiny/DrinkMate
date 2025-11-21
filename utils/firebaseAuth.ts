@@ -52,7 +52,6 @@ export class FirebaseAuthService {
         displayName: displayName
       });
       
-      console.log('✅ Usuario registrado:', userCredential.user.email);
       return { success: true, user: userCredential.user };
     } catch (error: any) {
       console.error('❌ Error registrando usuario:', error);
@@ -77,7 +76,6 @@ export class FirebaseAuthService {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ Usuario logueado:', userCredential.user.email);
       return { success: true, user: userCredential.user };
     } catch (error: any) {
       console.error('❌ Error iniciando sesión:', error);

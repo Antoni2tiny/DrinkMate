@@ -10,6 +10,7 @@ import { Alert } from 'react-native';
 // Importar los providers de autenticación
 import { AppAuthProvider } from './app/context/AppAuthProvider';
 import { AppInitializer } from './utils/appInitializer';
+// import { useAppAuth, UserType } from './app/hooks/useAppAuth'; // Ya no se usa directamente aquí
 
 // Importar pantallas existentes
 import Login from "./app/auth/Login";
@@ -31,6 +32,7 @@ import AuthOptions from "./app/screens/AuthOptions";
 import AuthManager from "./app/screens/AuthManager";
 import EmpresaAuthManager from "./app/screens/EmpresaAuthManager";
 import RegistroEmpresa from "./app/screens/RegistroEmpresa";
+import AuthLoadingScreen from "./app/screens/AuthLoadingScreen";
 
 // Importar navegaciones
 import GuestTabs from "./app/navigation/GuestTabs";
@@ -118,16 +120,18 @@ export default function App() {
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true, // Añadido
+        shouldShowList: true,   // Añadido
       }),
     });
 
     // Listener para notificaciones recibidas mientras la app está en primer plano
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification: Notifications.Notification) => {
       console.log('Notificación recibida:', notification);
     });
 
     // Listener para cuando el usuario toca una notificación
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response: Notifications.NotificationResponse) => {
       console.log('Respuesta a notificación:', response);
       
       // Aquí puedes manejar la navegación basada en la notificación
@@ -157,7 +161,12 @@ export default function App() {
     <SafeAreaProvider>
       <AppAuthProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
+          <Stack.Navigator initialRouteName="AuthLoadingScreen">
+            <Stack.Screen 
+              name="AuthLoadingScreen" 
+              component={AuthLoadingScreen} 
+              options={{ headerShown: false }} 
+            />
             <Stack.Screen 
               name="Home" 
               component={HomeScreen} 

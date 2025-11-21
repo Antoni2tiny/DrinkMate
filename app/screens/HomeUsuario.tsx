@@ -9,6 +9,8 @@ import {
   FlatList,
   Image,
   Dimensions,
+  Linking,
+  Platform,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -24,6 +26,8 @@ import { FirestoreCuponService, FirestoreEmpresaService } from '../../utils/fire
 import { Cupon } from '../../utils/models';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { firebaseApp } from '../../utils/initFirebase';
+
+import Constants from 'expo-constants';
 
 const db = firebaseApp ? getFirestore(firebaseApp) : null;
 import { useAppAuth } from '../hooks/useAppAuth';
@@ -76,29 +80,15 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
   const navigation = useNavigation<HomeUsuarioNavProp>();
   const { userType, currentUser, isAuthenticated } = useAppAuth();
   const [recentDrinks, setRecentDrinks] = useState<DrinkItem[]>([]);
-  const [pushToken, setPushToken] = useState<string | null>(null);
   const [cupones, setCupones] = useState<Cupon[]>([]);
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [loadingCupones, setLoadingCupones] = useState(true);
 
   useEffect(() => {
-    initializeNotifications();
     loadRecentDrinks();
     loadCuponesFromFirebase();
     loadEmpresasFromFirebase();
   }, []);
-
-  /**
-   * Inicializa las notificaciones al cargar la pantalla
-   */
-  const initializeNotifications = async () => {
-    try {
-      const token = await registerForPushNotificationsAsync();
-      setPushToken(token);
-    } catch (error) {
-      console.error('Error inicializando notificaciones:', error);
-    }
-  };
 
   /**
    * Cargar cupones activos desde Firebase
@@ -106,7 +96,6 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
   const loadCuponesFromFirebase = async () => {
     try {
       setLoadingCupones(true);
-      console.log('🎫 Cargando cupones activos desde Firebase...');
       
       // Método simplificado: obtener todos los cupones directamente
       try {
@@ -130,10 +119,8 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
           return cupon.activo && cupon.fechaVencimiento >= hoy;
         });
         
-        console.log(`✅ ${cuponesActivos.length} cupones activos cargados`);
         setCupones(cuponesActivos);
       } catch (firestoreError) {
-        console.log('📝 Usando cupones de ejemplo (Firestore no disponible)');
         // Usar cupones de ejemplo como fallback
         const { cuponesEjemplo } = await import('../../utils/models');
         setCupones(cuponesEjemplo || []);
@@ -151,9 +138,7 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
    */
   const loadEmpresasFromFirebase = async () => {
     try {
-      console.log('🏢 Cargando empresas desde Firebase...');
       const empresasActivas = await FirestoreEmpresaService.getEmpresasActivas();
-      console.log(`✅ ${empresasActivas.length} empresas cargadas`);
       setEmpresas(empresasActivas);
     } catch (error) {
       console.error('❌ Error cargando empresas:', error);
@@ -390,20 +375,20 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
           )}
         </View>
 
-        {/* Estado de notificaciones */}
-        <View style={styles.section}>
+        {/* Estado de notificaciones -- ELIMINADO */}
+        {/* <View style={styles.section}>
           <Text style={styles.sectionTitle}>Estado de Notificaciones</Text>
           <View style={styles.statusCard}>
-            <Ionicons 
-              name={pushToken ? "checkmark-circle" : "alert-circle"} 
-              size={20} 
-              color={pushToken ? colors.success : colors.warning} 
+            <Ionicons
+              name={pushToken ? "checkmark-circle" : "alert-circle"}
+              size={20}
+              color={pushToken ? colors.success : colors.warning}
             />
             <Text style={styles.statusText}>
               {pushToken ? 'Notificaciones configuradas' : 'Configurando notificaciones...'}
             </Text>
           </View>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   );

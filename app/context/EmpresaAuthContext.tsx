@@ -37,15 +37,15 @@ export const EmpresaAuthProvider: React.FC<Props> = ({ children }) => {
     // Escuchar cambios de autenticación para empresas
     const unsubscribe = FirebaseEmpresaAuthService.onEmpresaAuthStateChange(
       async (firebaseUser, empresaData) => {
-        console.log('🏢 Estado de autenticación empresa cambió:', empresaData?.nombre || 'No autenticado');
-        
         setUser(firebaseUser);
         setEmpresa(empresaData);
         setIsLoading(false);
       }
     );
 
-    return unsubscribe || (() => {});
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const loginEmpresa = async (email: string, password: string) => {
@@ -59,7 +59,6 @@ export const EmpresaAuthProvider: React.FC<Props> = ({ children }) => {
         return { success: false, error: result.error };
       }
     } catch (error) {
-      console.error('Error en login empresa:', error);
       return { success: false, error: 'Error inesperado' };
     } finally {
       setIsLoading(false);
@@ -81,7 +80,6 @@ export const EmpresaAuthProvider: React.FC<Props> = ({ children }) => {
         return { success: false, error: result.error };
       }
     } catch (error) {
-      console.error('Error en registro empresa:', error);
       return { success: false, error: 'Error inesperado' };
     } finally {
       setIsLoading(false);
@@ -93,7 +91,7 @@ export const EmpresaAuthProvider: React.FC<Props> = ({ children }) => {
       setIsLoading(true);
       await FirebaseEmpresaAuthService.logoutEmpresa();
     } catch (error) {
-      console.error('Error en logout empresa:', error);
+      // console.error('Error en logout empresa:', error);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +111,7 @@ export const EmpresaAuthProvider: React.FC<Props> = ({ children }) => {
       
       return success;
     } catch (error) {
-      console.error('Error actualizando empresa:', error);
+      // console.error('Error actualizando empresa:', error);
       return false;
     }
   };

@@ -77,7 +77,6 @@ export class FirebaseEmpresaAuthService {
       );
       
       if (empresaId) {
-        console.log('✅ Empresa registrada:', empresaData.nombre);
         return { 
           success: true, 
           user: userCredential.user,
@@ -90,7 +89,6 @@ export class FirebaseEmpresaAuthService {
       }
       
     } catch (error: any) {
-      console.error('❌ Error registrando empresa:', error);
       return { 
         success: false, 
         error: this.getErrorMessage(error.code) 
@@ -118,7 +116,6 @@ export class FirebaseEmpresaAuthService {
       const empresa = await FirestoreEmpresaService.getEmpresaByOwnerId(userCredential.user.uid);
       
       if (empresa) {
-        console.log('✅ Empresa logueada:', empresa.nombre);
         return { 
           success: true, 
           user: userCredential.user,
@@ -134,7 +131,6 @@ export class FirebaseEmpresaAuthService {
       }
       
     } catch (error: any) {
-      console.error('❌ Error iniciando sesión empresa:', error);
       return { 
         success: false, 
         error: this.getErrorMessage(error.code) 
@@ -150,10 +146,8 @@ export class FirebaseEmpresaAuthService {
 
     try {
       await signOut(auth);
-      console.log('✅ Sesión de empresa cerrada');
       return true;
     } catch (error) {
-      console.error('❌ Error cerrando sesión empresa:', error);
       return false;
     }
   }
