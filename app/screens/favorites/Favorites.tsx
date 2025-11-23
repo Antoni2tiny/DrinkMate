@@ -1,16 +1,26 @@
 import { View, Text, StyleSheet, ActivityIndicator, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getFavorites, removeFavorite, FavoriteDrink } from '../../../utils/firebaseFavorites';
 import { colors } from '../../../utils';
 import { getAuth } from 'firebase/auth';
 import FavoriteDrinksList from './components/FavoriteDrinksList';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { UserTabParamList, RootStackParamList } from '../../navigation/types';
+import { CompositeNavigationProp } from '@react-navigation/native';
+
+type FavoritesScreenNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<UserTabParamList, 'Favoritos'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<FavoriteDrink[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const auth = getAuth();
+  const navigation = useNavigation<FavoritesScreenNavigationProp>();
 
   const fetchFavorites = useCallback(async () => {
     setLoading(true);
@@ -84,7 +94,7 @@ export default function FavoritesScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Tragos Favoritos</Text>
       <FavoriteDrinksList favorites={favorites} onDeleteFavorite={handleDeleteFavorite} />
-      <Pressable style={styles.fab} onPress={() => console.log('FAB PRESSED')}>
+      <Pressable style={styles.fab} onPress={() => navigation.navigate('Subir')}>
         <Text style={styles.fabText}>+</Text>
       </Pressable>
     </SafeAreaView>

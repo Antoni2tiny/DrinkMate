@@ -701,16 +701,16 @@ export default function HomeScreen() {
                   </View>
 
                   {/* Botón de acción */}
-                  <TouchableOpacity
+                  {/*<TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => {
-                      closeModal();
-                      navigation.navigate('GuestTabs', { screen: 'Mapa' });
+                      //closeModal();
+                      //navigation.navigate('GuestTabs', { screen: 'Mapa' });
                     }}
                   >
                     <Ionicons name="map" size={20} color={colors.background} />
                     <Text style={styles.actionButtonText}>Ver en el Mapa</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity>*/}
                 </ScrollView>
               </>
             )}

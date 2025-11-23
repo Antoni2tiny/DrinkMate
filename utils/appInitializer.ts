@@ -26,7 +26,7 @@ export class AppInitializer {
 
       // ***** Lógica para evitar el error de notificaciones push en Expo Go (Android SDK 53+) *****
       if (Constants.appOwnership === 'expo' && Platform.OS === 'android') {
-        console.log('📱 [AVISO] Notificaciones push remotas no disponibles en Expo Go para Android (SDK 53+). Solo notificaciones locales.');
+        console.log('📱');
         // Retornar inmediatamente para evitar cualquier llamada a funciones de push.
         return;
       }

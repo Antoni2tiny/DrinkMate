@@ -17,7 +17,7 @@ const { width, height } = Dimensions.get('window');
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, sizes } from '../../utils';
-import { sendTestNotification, registerForPushNotificationsAsync } from '../../utils/notifications';
+import { sendTestNotification, /*registerForPushNotificationsAsync*/ } from '../../utils/notifications';
 import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -374,21 +374,6 @@ export default function HomeUsuario({ onNavigateToAuth, onNavigateToEmpresaAuth 
             </View>
           )}
         </View>
-
-        {/* Estado de notificaciones -- ELIMINADO */}
-        {/* <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Estado de Notificaciones</Text>
-          <View style={styles.statusCard}>
-            <Ionicons
-              name={pushToken ? "checkmark-circle" : "alert-circle"}
-              size={20}
-              color={pushToken ? colors.success : colors.warning}
-            />
-            <Text style={styles.statusText}>
-              {pushToken ? 'Notificaciones configuradas' : 'Configurando notificaciones...'}
-            </Text>
-          </View>
-        </View> */}
       </ScrollView>
     </SafeAreaView>
   );
