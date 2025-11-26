@@ -27,14 +27,9 @@ if (firebaseApp) {
   }
 }
 
-/**
- * Servicio de autenticación con Firebase
- */
 export class FirebaseAuthService {
   
-  /**
-   * Registrar nuevo usuario
-   */
+    // Registra nuevo usuario
   static async register(email: string, password: string, displayName: string): Promise<{
     success: boolean;
     user?: User;
@@ -62,9 +57,8 @@ export class FirebaseAuthService {
     }
   }
 
-  /**
-   * Iniciar sesión
-   */
+  // inicia sesion
+
   static async login(email: string, password: string): Promise<{
     success: boolean;
     user?: User;
@@ -86,9 +80,8 @@ export class FirebaseAuthService {
     }
   }
 
-  /**
-   * Cerrar sesión
-   */
+  
+  // cierra sesion
   static async logout(): Promise<boolean> {
     if (!auth) return false;
 
